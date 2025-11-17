@@ -48,23 +48,40 @@ export default function GraphView() {
 
   ]};
 
+  const nodeObject = (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+    const label = node.label;
+    const boxSize = { width: 30, height: 35 };
+    const fontSize = 4;
+    ctx.font = `${fontSize}px Sans-Serif`;
+    ctx.strokeStyle = node.color || 'black';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.clearRect(node.x! - boxSize.width/2, node.y! - boxSize.height/2, boxSize.width, boxSize.height);
+    roundedRect(ctx, node.x! - boxSize.width/2, node.y! - boxSize.height/2, boxSize.width, boxSize.height, 2);
+    ctx.fillText(label, node.x!, node.y!);
+  }
+
+  function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+    ctx.beginPath();
+    ctx.moveTo(x, y + radius);
+    ctx.arcTo(x, y + height, x + radius, y + height, radius);
+    ctx.arcTo(x + width, y + height, x + width, y + height - radius, radius);
+    ctx.arcTo(x + width, y, x + width - radius, y, radius);
+    ctx.arcTo(x, y, x, y + radius, radius);
+    ctx.stroke();
+  }
+
   return (
     <div className='w-full h-full bg-white'>
       <ForceGraph2D
         graphData={graph}
+        nodeVal={15}
         nodeLabel="label"
         linkDirectionalArrowLength={3.5}
         linkDirectionalArrowRelPos={1}
         nodeAutoColorBy="color"
-        nodeCanvasObject={(node, ctx, globalScale) => {
-          const label = node.label;
-          const fontSize = 12 / globalScale;
-          ctx.font = `${fontSize}px Sans-Serif`;
-          ctx.fillStyle = node.color || 'black';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(label, node.x!, node.y!);
-        }}
+        nodeCanvasObject={nodeObject}
+        nodeCanvasObjectMode={() => 'after'}
         width={600}
         height={400}
       />
